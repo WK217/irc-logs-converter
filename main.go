@@ -393,7 +393,7 @@ func WriteLine(w io.Writer, s string) {
 	}
 }
 
-func ConvertFile(i string, o string) {
+func ConvertFile(i string, o string, align bool) {
 	in, err := os.Open(i)
 	if err != nil {
 		log.Fatal(err)
@@ -410,7 +410,9 @@ func ConvertFile(i string, o string) {
 	defer out.Close()
 
 	w := bufio.NewWriter(out)
+	if align {
 	WriteLine(w, strings.Repeat("—", 132))
+	}
 
 	for s.Scan() {
 		WriteLine(w, ConvertLine(s.Text()))
@@ -428,8 +430,9 @@ func ConvertFile(i string, o string) {
 func main() {
 	log := flag.String("log", "input.log", "input log file name")
 	output := flag.String("output", "output.log", "output log file name")
+	align := flag.Bool("align", false, "append alignment line")
 
 	flag.Parse()
 
-	ConvertFile(*log, *output)
+	ConvertFile(*log, *output, *align)
 }
