@@ -22,6 +22,7 @@ const (
 
 var re = regexp.MustCompile(fmt.Sprintf(`(?:(%[2]s)|(?:(%[1]s)(?:(\d{1,2})(?:,(\d{1,2}))?)?))?([^%[1]s%[2]s]*)`, CharToHex(CharColor), CharToHex(CharReset)))
 var re2 = regexp.MustCompile(fmt.Sprintf(`(%[1]s|%[2]s|%[3]s)?([^%[1]s%[2]s%[3]s]*)`, CharToHex(CharBold), CharToHex(CharItalic), CharToHex(CharUnderline)))
+var re3 = regexp.MustCompile(fmt.Sprintf(`(?m)^(?:%s\d{1,2})?\[\d{2}:\d{2}:\d{2}] (?:-> )?\*.+?\*`, CharToHex(CharColor)))
 
 func CharToHex(c byte) string {
 	return fmt.Sprintf("\\x%02x", c)
@@ -393,7 +394,7 @@ func WriteLine(w io.Writer, s string) {
 	}
 }
 
-func ConvertFile(i string, o string, align bool) {
+func ConvertFile(i string, o string, align bool, priv bool) {
 	in, err := os.Open(i)
 	if err != nil {
 		log.Fatal(err)
@@ -411,11 +412,13 @@ func ConvertFile(i string, o string, align bool) {
 
 	w := bufio.NewWriter(out)
 	if align {
-	WriteLine(w, strings.Repeat("—", 132))
+		WriteLine(w, strings.Repeat("—", 132))
 	}
 
 	for s.Scan() {
-		WriteLine(w, ConvertLine(s.Text()))
+		if line := s.Text(); priv || !re3.MatchString(line) {
+			WriteLine(w, ConvertLine(line))
+		}
 	}
 
 	if err := s.Err(); err != nil {
@@ -431,8 +434,9 @@ func main() {
 	log := flag.String("log", "input.log", "input log file name")
 	output := flag.String("output", "output.log", "output log file name")
 	align := flag.Bool("align", false, "append alignment line")
+	priv := flag.Bool("priv", false, "include private messages")
 
 	flag.Parse()
 
-	ConvertFile(*log, *output, *align)
+	ConvertFile(*log, *output, *align, *priv)
 }
