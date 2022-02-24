@@ -69,20 +69,20 @@ func (tag *Tag) ToString(close bool) {
 		name := `span`
 
 		if !close {
-			name += ` class="`
+			var class string
 
 			if tag.color.fg != ColorNone && tag.color.fg != ColorTransp {
-				name += fmt.Sprintf("fc%d", tag.color.fg)
+				class = fmt.Sprintf("fc%d", tag.color.fg)
 			}
 
 			if tag.color.bg != ColorNone && tag.color.bg != ColorTransp {
-				if len(name) > 0 {
-					name += ` `
+				if len(class) > 0 {
+					class += " "
 				}
-				name += fmt.Sprintf("bc%d", tag.color.bg)
+				class += fmt.Sprintf("bc%d", tag.color.bg)
 			}
 
-			name += `"`
+			name += fmt.Sprintf(` class="%s"`, strings.TrimSpace(class))
 		}
 
 		conv.WriteByte('<')
