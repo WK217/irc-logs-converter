@@ -196,6 +196,16 @@ func CloseTag(i Index) {
 	}
 }
 
+func GetLastTagIndex(c byte) Index {
+	for i := Index(len(tags)) - 1; i >= 0; i-- {
+		if tags[i].char == c {
+			return i
+		}
+	}
+
+	return -1
+}
+
 func Reset(colors bool) {
 	for i := Index(len(tags)) - 1; i >= 0; i-- {
 		tag := tags[i]
@@ -343,10 +353,11 @@ func ConvertFormatCode(i Index, c *FormatCode) {
 		if len(match[1]) > 0 {
 			char := match[1][0]
 			if opened[char] {
-				CloseTag(GetLastCodeIndex(char))
+				CloseTag(GetLastTagIndex(char))
 			} else {
 				AddFormatTag(char)
 			}
+			opened[char] = !opened[char]
 		}
 
 		conv.WriteString(text)
