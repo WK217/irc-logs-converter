@@ -5,7 +5,7 @@
 ## Использование
 
 ```
-conv [-log <filename>] [-output <filename>]
+conv [-log <filename>] [-output <filename>] [-align] [-priv]
 ```
 
 | Параметр | Значение по умолчанию | Описание                                                  |
